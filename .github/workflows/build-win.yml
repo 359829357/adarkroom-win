@@ -1,0 +1,76 @@
+name: build-windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  tauri:
+    name: Tauri portable exe (small, WebView2)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+          key: tauri-win
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Tauri CLI
+        run: npm install -g @tauri-apps/cli@^2
+
+      - name: Build Tauri app
+        run: tauri build --ci
+
+      - name: Collect artifacts
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item "src-tauri/target/release/adarkroom.exe" "out/ADarkRoom-portable.exe"
+          if (Test-Path "src-tauri/target/release/bundle/nsis") {
+            Copy-Item "src-tauri/target/release/bundle/nsis/*.exe" "out/" -ErrorAction SilentlyContinue
+          }
+          Get-ChildItem out | Select-Object Name, Length
+
+      - name: Upload Tauri artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: adarkroom-tauri-win
+          path: out/*
+          if-no-files-found: error
+
+  electron:
+    name: Electron portable exe (fallback, bundled Chromium)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build portable exe
+        run: npx electron-builder --win portable --x64 --publish never
+
+      - name: Upload Electron artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: adarkroom-electron-win
+          path: dist/*.exe
+          if-no-files-found: error
