@@ -2,7 +2,7 @@
 
 把 [doublespeakgames/adarkroom](https://github.com/doublespeakgames/adarkroom)（MPL-2.0）的纯网页版封装成 Windows 可执行文件，用于和"直接 git clone 跑网页"做对比。
 
-游戏本体未改动，仅在 `web/index.html` 顶部加了一行 `desktop-config.js` 引导脚本（默认简体中文，删掉 `localStorage.lang` 或加 `?lang=en` 即回到英文原版）。
+游戏逻辑未改动，只做了三处桌面化调整：`web/index.html` 顶部加 `desktop-config.js` 默认简体中文（删掉 `localStorage.lang` 或加 `?lang=en` 回到英文原版）；jQuery 改为本地文件、去掉 Google CDN 与统计脚本，双击即可离线运行。
 
 ## 目录
 
