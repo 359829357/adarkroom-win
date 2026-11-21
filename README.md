@@ -37,7 +37,7 @@ cd adarkroom-win
 node dev-server.mjs        # 无需 npm install，打开 http://localhost:8080/?lang=zh_cn
 ```
 
-或者直接双击 `web/index.html`（离线可用，jQuery 有本地回退，只有 Google Analytics 请求会失败）。
+或者直接双击 `web/index.html`（完全离线：jQuery 已本地化、无外链统计，打开即进游戏，无需终端）。
 
 ## 存档位置
 
